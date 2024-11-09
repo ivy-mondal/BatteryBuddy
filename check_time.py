@@ -1,6 +1,7 @@
 import random
 import time
 from datetime import datetime
+from charge_reminder import charge_reminder
 
 
 def check_time():

@@ -1,13 +1,24 @@
-from datetime import datetime
-
 import customtkinter as ctk
-
-
-def nagging_mode(battey_level):
-    pass
+from messages import nagging_mode
 
 
 def charge_reminder():
+    battery_result = None
+
+    def on_submit():
+        try:
+            battery_level = int(battery_entry.get())
+            if 0 <= battery_level <= 100:
+                window.destroy()
+                nagging_mode(battery_level)
+                nonlocal battery_result  # Use nonlocal to modify outer variable
+                battery_result = battery_level  # Store the result
+
+            else:
+                show_error("Trying to lie now QwQ")
+        except ValueError:
+            show_error("Numbers only, please!")
+
     ctk.set_appearance_mode("dark")
     ctk.set_default_color_theme("dark-blue")
 
@@ -27,11 +38,11 @@ def charge_reminder():
     window.geometry(f'{window_width}x{window_height}+{center_x}+{center_y}')
 
     frame = ctk.CTkFrame(window,
-        fg_color="#d96c86",
-        corner_radius=15,    # Rounded corners
-        border_width=2,      # Border width
-        border_color="#12136e"  # Border color
-    )
+                         fg_color="#d96c86",
+                         corner_radius=15,  # Rounded corners
+                         border_width=2,  # Border width
+                         border_color="#12136e"  # Border color
+                         )
 
     frame.pack(pady=20, padx=20, fill="both", expand=True)
 
@@ -64,20 +75,6 @@ def charge_reminder():
     battery_entry.pack(pady=10)
     battery_entry.focus()
 
-    def on_submit():
-        try:
-            battery_level = int(battery_entry.get())
-            if 0 <= battery_level <= 100:
-                with open("battery_log.txt", "a") as log:
-                    log.write(f"\n[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] "
-                              f"Battery Level: {battery_level}%")
-                nagging_mode(battery_level)
-                window.destroy()
-            else:
-                show_error("Trying to lie now QwQ")
-        except ValueError:
-            show_error("Numbers only, please!")
-
     def show_error(message):
         error_label.configure(text=message)
         error_label.pack(pady=10)
@@ -109,6 +106,8 @@ def charge_reminder():
     window.protocol("WM_DELETE_WINDOW", on_closing)
 
     window.mainloop()
+
+    return battery_result
 
 
 if __name__ == "__main__":
